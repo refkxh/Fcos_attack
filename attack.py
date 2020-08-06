@@ -103,7 +103,7 @@ if __name__ == "__main__":
                 loss.backward()
                 grad = img1.grad.data.sign()
                 img1 = img1 - 0.4 * grad
-                img1 = torch.clamp(img1, -1, 1)
+                img1 = torch.clamp(img1, -2, 2)
             else:
                 break
         end_t = time.time()

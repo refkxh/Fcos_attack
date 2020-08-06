@@ -12,7 +12,7 @@ from matplotlib.ticker import NullLocator
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 MODE = 1
-attack_iters = 10
+attack_iters = 20
 attack_epsilon = 0.05
 
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         # inference
         score_threshold = 0.3
         nms_iou_threshold = 0.1
-        max_detection_boxes_num = 100
+        max_detection_boxes_num = 20
 
 
     model = FCOSDetector(mode="inference", config=Config)

@@ -81,7 +81,7 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load("./checkpoint/coco_37.2.pth", map_location=torch.device('cpu')))
     # model=convertSyncBNtoBN(model)
     # print("INFO===>success convert SyncBN to BN")
-    model = model.eval()
+    model = model.cuda().eval()
     print("===>success loading model")
 
     root = r"../eval_code/select1000_new/"
@@ -93,6 +93,7 @@ if __name__ == "__main__":
         img1 = transforms.ToTensor()(img)
         img1 = transforms.Normalize([0.40789654, 0.44719302, 0.47026115], [0.28863828, 0.27408164, 0.27809835], inplace=True)(img1)
         img1.unsqueeze_(dim=0)
+        img1 = img1.cuda()
         img1.requires_grad = True
         perturb = torch.zeros_like(img1)
 

@@ -107,7 +107,6 @@ if __name__ == "__main__":
                 model.zero_grad()
                 loss.backward()
                 grad = img1.grad.data.sign()
-                print(grad.shape)
                 img1 = img1 - attack_epsilon * grad
                 img1 = torch.clamp(img1, -4, 4)
                 perturb = perturb - attack_epsilon * grad

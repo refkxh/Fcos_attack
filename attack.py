@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import NullLocator
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-MODE = 0
+MODE = 1
 attack_iters = 20
 attack_epsilon = 0.4
 

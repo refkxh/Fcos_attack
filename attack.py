@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
         if MODE == 1:
             perturb.squeeze_(dim=0)
-            perturb = perturb.numpy()
+            perturb = perturb.cpu().numpy()
             perturb = perturb.transpose(1, 2, 0)
             perturb = perturb[:nh, :nw, :] * 0.28 * 255 + 128
             perturb = perturb.clip(0, 255)

@@ -114,7 +114,6 @@ if __name__ == "__main__":
         end_t = time.time()
         cost_t = 1000 * (end_t - start_t)
         print("===>success processing img, cost time %.2f ms" % cost_t)
-        img1.requires_grad = False
 
         if MODE == 1:
             perturb.squeeze_(dim=0)
@@ -127,9 +126,9 @@ if __name__ == "__main__":
             adv_img = img + perturb
             cv2.imwrite('out_images/{}'.format(name), adv_img, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
         else:
-            boxes = boxes[0].cpu().numpy().tolist()
-            classes = classes[0].cpu().numpy().tolist()
-            scores = scores[0].cpu().numpy().tolist()
+            boxes = boxes[0].detach().cpu().numpy().tolist()
+            classes = classes[0].detach().cpu().numpy().tolist()
+            scores = scores[0].detach().cpu().numpy().tolist()
             plt.figure()
             fig, ax = plt.subplots(1)
             ax.imshow(img)

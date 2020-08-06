@@ -103,11 +103,11 @@ if __name__ == "__main__":
             scores, classes, boxes = model(img1)
             loss = torch.sum(scores[0])
             if loss > 0:
-                print('Iter {}'.format(i), loss)
+                print('Iter {} loss:'.format(i), loss)
                 model.zero_grad()
                 loss.backward()
                 grad = img1.grad.data.sign()
-                print(grad)
+                print(grad.shape)
                 img1 = img1 - attack_epsilon * grad
                 img1 = torch.clamp(img1, -4, 4)
                 perturb = perturb - attack_epsilon * grad

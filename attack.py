@@ -1,5 +1,6 @@
 import cv2
 from model.fcos import FCOSDetector
+import os
 import torch
 from torchvision import transforms
 import numpy as np
@@ -8,6 +9,11 @@ import time
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullLocator
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+MODE = 0
+attack_iters = 20
+attack_epsilon = 0.4
 
 
 def preprocess_img(image, input_ksize):
@@ -78,8 +84,6 @@ if __name__ == "__main__":
     model = model.eval()
     print("===>success loading model")
 
-    import os
-
     root = r"../eval_code/select1000_new/"
     names = os.listdir(root)
     for name in names:
@@ -94,7 +98,7 @@ if __name__ == "__main__":
 
         start_t = time.time()
         scores, classes, boxes = None, None, None
-        for i in range(20):
+        for i in range(attack_iters):
             scores, classes, boxes = model(img1)
             loss = torch.sum(scores[0])
             if loss > 0:
@@ -102,33 +106,44 @@ if __name__ == "__main__":
                 model.zero_grad()
                 loss.backward()
                 grad = img1.grad.data.sign()
-                img1 = img1 - 0.4 * grad
-                img1 = torch.clamp(img1, -2, 2)
+                img1 = img1 - attack_epsilon * grad
+                img1 = torch.clamp(img1, -4, 4)
+                perturb = perturb - attack_epsilon * grad
             else:
                 break
         end_t = time.time()
         cost_t = 1000 * (end_t - start_t)
         print("===>success processing img, cost time %.2f ms" % cost_t)
 
-        boxes = boxes[0].cpu().numpy().tolist()
-        classes = classes[0].cpu().numpy().tolist()
-        scores = scores[0].cpu().numpy().tolist()
-        plt.figure()
-        fig, ax = plt.subplots(1)
-        ax.imshow(img)
-        for i, box in enumerate(boxes):
-            pt1 = (int(box[0]), int(box[1]))
-            pt2 = (int(box[2]), int(box[3]))
-            img_pad = cv2.rectangle(img_pad, pt1, pt2, (0, 255, 0))
-            b_color = colors[int(classes[i])]
-            bbox = patches.Rectangle((box[0], box[1]), width=box[2] - box[0], height=box[3] - box[1], linewidth=1,
-                                     facecolor='none', edgecolor=b_color)
-            ax.add_patch(bbox)
-            plt.text(box[0], box[1], s="%s %.3f" % (COCOGenerator.CLASSES_NAME[int(classes[i])], scores[i]), color='white',
-                     verticalalignment='top',
-                     bbox={'color': b_color, 'pad': 0})
-        plt.axis('off')
-        plt.gca().xaxis.set_major_locator(NullLocator())
-        plt.gca().yaxis.set_major_locator(NullLocator())
-        plt.savefig('out_images/{}'.format(name), bbox_inches='tight', pad_inches=0.0)
-        plt.close()
+        if MODE == 1:
+            perturb.squeeze_(dim=0)
+            perturb = perturb.numpy()
+            perturb = perturb.transpose(1, 2, 0)
+            perturb = perturb[:nh, :nw, :] * 0.28 * 255 + 128
+            perturb = cv2.resize(perturb, (500, 500))
+            perturb = perturb - 128
+            adv_img = img + perturb
+            cv2.imwrite('out_images/{}'.format(name), adv_img, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
+        else:
+            boxes = boxes[0].cpu().numpy().tolist()
+            classes = classes[0].cpu().numpy().tolist()
+            scores = scores[0].cpu().numpy().tolist()
+            plt.figure()
+            fig, ax = plt.subplots(1)
+            ax.imshow(img)
+            for i, box in enumerate(boxes):
+                pt1 = (int(box[0]), int(box[1]))
+                pt2 = (int(box[2]), int(box[3]))
+                img_pad = cv2.rectangle(img_pad, pt1, pt2, (0, 255, 0))
+                b_color = colors[int(classes[i])]
+                bbox = patches.Rectangle((box[0], box[1]), width=box[2] - box[0], height=box[3] - box[1], linewidth=1,
+                                         facecolor='none', edgecolor=b_color)
+                ax.add_patch(bbox)
+                plt.text(box[0], box[1], s="%s %.3f" % (COCOGenerator.CLASSES_NAME[int(classes[i])], scores[i]), color='white',
+                         verticalalignment='top',
+                         bbox={'color': b_color, 'pad': 0})
+            plt.axis('off')
+            plt.gca().xaxis.set_major_locator(NullLocator())
+            plt.gca().yaxis.set_major_locator(NullLocator())
+            plt.savefig('out_images/{}'.format(name), bbox_inches='tight', pad_inches=0.0)
+            plt.close()

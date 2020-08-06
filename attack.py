@@ -114,6 +114,7 @@ if __name__ == "__main__":
         end_t = time.time()
         cost_t = 1000 * (end_t - start_t)
         print("===>success processing img, cost time %.2f ms" % cost_t)
+        img1.requires_grad = False
 
         if MODE == 1:
             perturb.squeeze_(dim=0)

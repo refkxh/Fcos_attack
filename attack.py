@@ -107,8 +107,7 @@ if __name__ == "__main__":
                 model.zero_grad()
                 loss.backward()
                 grad = img1.grad.data.sign()
-                img1 = img1 - attack_epsilon * grad
-                img1 = torch.clamp(img1, -4, 4)
+                img1.data = img1.data - attack_epsilon * grad
                 perturb = perturb - attack_epsilon * grad
             else:
                 break
@@ -121,6 +120,7 @@ if __name__ == "__main__":
             perturb = perturb.numpy()
             perturb = perturb.transpose(1, 2, 0)
             perturb = perturb[:nh, :nw, :] * 0.28 * 255 + 128
+            perturb = perturb.clip(0, 255)
             perturb = cv2.resize(perturb, (500, 500))
             perturb = perturb - 128
             adv_img = img + perturb

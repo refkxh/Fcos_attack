@@ -89,7 +89,7 @@ if __name__ == "__main__":
     for name in names:
         img_bgr = cv2.imread(root + name)
         mask = np.load('masks/' + name.split('.')[0] + '.npy')
-        print(mask.shape)
+        mask = np.expand_dims(mask, 0).repeat(3, axis=0)
         img_pad, nh, nw = preprocess_img(img_bgr, [800, 1333])
         mask_resize, _, _ = preprocess_img(mask, [800, 1333])
         img = cv2.cvtColor(img_pad.copy(), cv2.COLOR_BGR2RGB)

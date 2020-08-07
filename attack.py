@@ -129,7 +129,7 @@ if __name__ == "__main__":
             perturb = perturb.clip(0, 255)
             perturb = cv2.resize(perturb, (500, 500))
             perturb = (perturb - 112) * mask
-            adv_img = img_bgr + cv2.cvtColor(perturb, cv2.COLOR_RGB2BGR)
+            adv_img = (img_bgr + cv2.cvtColor(perturb, cv2.COLOR_RGB2BGR)).clip(0, 255)
             cv2.imwrite('out_images/{}'.format(name), adv_img, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
         else:
             boxes = boxes[0].detach().cpu().numpy().tolist()

@@ -91,10 +91,9 @@ if __name__ == "__main__":
         mask = np.load('masks/' + name.split('.')[0] + '.npy')
         mask = np.expand_dims(mask, 2).repeat(3, axis=2)
         img_pad, nh, nw = preprocess_img(img_bgr, [800, 1333])
-        print(mask)
-        mask_resize, _, _ = preprocess_img(mask, [800, 1333])
+        mask_resize, _, _ = preprocess_img(mask + 1, [800, 1333])
         mask_resize = torch.from_numpy(mask_resize).cuda()
-        mask_resize = mask_resize.permute(2, 0, 1)
+        mask_resize = mask_resize.permute(2, 0, 1) - 1
         img = cv2.cvtColor(img_pad.copy(), cv2.COLOR_BGR2RGB)
         img1 = transforms.ToTensor()(img)
         img1 = transforms.Normalize([0.40789654, 0.44719302, 0.47026115], [0.28863828, 0.27408164, 0.27809835], inplace=True)(img1)

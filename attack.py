@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
         # inference
         score_threshold = 0.3
-        nms_iou_threshold = 0.1
+        nms_iou_threshold = 0.2
         max_detection_boxes_num = 20
 
 
@@ -88,7 +88,10 @@ if __name__ == "__main__":
     names = os.listdir(root)
     for name in names:
         img_bgr = cv2.imread(root + name)
+        mask = np.load('masks/' + name.split('.')[0] + '.npy')
+        print(mask.shape)
         img_pad, nh, nw = preprocess_img(img_bgr, [800, 1333])
+        mask_resize, _, _ = preprocess_img(mask, [800, 1333])
         img = cv2.cvtColor(img_pad.copy(), cv2.COLOR_BGR2RGB)
         img1 = transforms.ToTensor()(img)
         img1 = transforms.Normalize([0.40789654, 0.44719302, 0.47026115], [0.28863828, 0.27408164, 0.27809835], inplace=True)(img1)
@@ -107,8 +110,9 @@ if __name__ == "__main__":
                 model.zero_grad()
                 loss.backward()
                 grad = img1.grad.data.sign()
-                img1.data = img1.data - attack_epsilon * grad
-                perturb = perturb - attack_epsilon * grad
+                img1.data = img1.data - grad * mask_resize * attack_epsilon
+                img1.data = img1.data.clamp(-4, 4)
+                perturb = perturb - grad * mask_resize * attack_epsilon
             else:
                 break
         end_t = time.time()
@@ -122,8 +126,8 @@ if __name__ == "__main__":
             perturb = perturb[:nh, :nw, :] * 0.28 * 255 + 128
             perturb = perturb.clip(0, 255)
             perturb = cv2.resize(perturb, (500, 500))
-            perturb = perturb - 128
-            adv_img = img_bgr + cv2.cvtColor(perturb, cv2.COLOR_BGR2RGB)
+            perturb = (perturb - 128) * mask
+            adv_img = img_bgr + cv2.cvtColor(perturb, cv2.COLOR_RGB2BGR)
             cv2.imwrite('out_images/{}'.format(name), adv_img, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
         else:
             boxes = boxes[0].detach().cpu().numpy().tolist()

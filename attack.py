@@ -91,9 +91,9 @@ if __name__ == "__main__":
         mask = np.load('masks/' + name.split('.')[0] + '.npy')
         mask = np.expand_dims(mask, 2).repeat(3, axis=2)
         img_pad, nh, nw = preprocess_img(img_bgr, [800, 1333])
-        print(mask.shape)
+        print(mask)
         mask_resize, _, _ = preprocess_img(mask, [800, 1333])
-        mask_resize = torch.from_numpy(mask_resize)
+        mask_resize = torch.from_numpy(mask_resize).cuda()
         mask_resize = mask_resize.permute(2, 0, 1)
         img = cv2.cvtColor(img_pad.copy(), cv2.COLOR_BGR2RGB)
         img1 = transforms.ToTensor()(img)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         img1.unsqueeze_(dim=0)
         img1 = img1.cuda()
         img1.requires_grad = True
-        perturb = torch.zeros_like(img1)
+        perturb = torch.zeros_like(img1).cuda()
 
         start_t = time.time()
         scores, classes, boxes = None, None, None

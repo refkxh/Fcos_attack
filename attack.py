@@ -91,7 +91,7 @@ if __name__ == "__main__":
         mask = np.load('masks/' + name.split('.')[0] + '.npy')
         mask = np.expand_dims(mask, 2).repeat(3, axis=2)
         print(img_bgr)
-        print(img_bgr.shape, mask.shape)
+        print(img_bgr.dtype, mask.dtype)
         img_pad, nh, nw = preprocess_img(img_bgr, [800, 1333])
         mask_resize, _, _ = preprocess_img(mask, [800, 1333])
         mask_resize = torch.from_numpy(mask_resize).cuda()

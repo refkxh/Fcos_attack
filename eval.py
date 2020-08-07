@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
         # inference
         score_threshold = 0.3
-        nms_iou_threshold = 0.1
+        nms_iou_threshold = 0.2
         max_detection_boxes_num = 20
 
 

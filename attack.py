@@ -12,8 +12,8 @@ from matplotlib.ticker import NullLocator
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 MODE = 1
-attack_iters = 40
-attack_epsilon = 0.2
+attack_iters = 100
+attack_epsilon = 0.03742357084
 
 
 def preprocess_img(image, input_ksize):
@@ -113,7 +113,7 @@ if __name__ == "__main__":
                 loss.backward()
                 grad = img1.grad.data.sign()
                 img1.data = img1.data - grad * mask_resize * attack_epsilon
-                img1.data = img1.data.clamp(-4, 4)
+                img1.data = img1.data.clamp(-1.690988638, 2.051368446)
                 perturb = perturb - grad * mask_resize * attack_epsilon
             else:
                 break
@@ -125,10 +125,10 @@ if __name__ == "__main__":
             perturb.squeeze_(dim=0)
             perturb = perturb.cpu().numpy()
             perturb = perturb.transpose(1, 2, 0)
-            perturb = perturb[:nh, :nw, :] * 0.28 * 255 + 128
+            perturb = perturb[:nh, :nw, :] * 0.28 * 255 + 112
             perturb = perturb.clip(0, 255)
             perturb = cv2.resize(perturb, (500, 500))
-            perturb = (perturb - 128) * mask
+            perturb = (perturb - 112) * mask
             adv_img = img_bgr + cv2.cvtColor(perturb, cv2.COLOR_RGB2BGR)
             cv2.imwrite('out_images/{}'.format(name), adv_img, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
         else:

@@ -10,7 +10,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullLocator
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 MODE = 1
 attack_iters = 30
 attack_epsilon = 0.05

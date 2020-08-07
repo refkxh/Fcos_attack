@@ -13,7 +13,7 @@ from matplotlib.ticker import NullLocator
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 MODE = 1
 attack_iters = 100
-attack_epsilon = 0.03742357084
+attack_epsilon = 0.04
 
 
 def preprocess_img(image, input_ksize):

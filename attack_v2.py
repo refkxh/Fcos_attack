@@ -93,7 +93,6 @@ if __name__ == "__main__":
         perturb = torch.zeros_like(img1).cuda()
 
         start_t = time.time()
-        nh, nw = 0, 0
         for i in range(attack_iters):
             img_pad, nh, nw = preprocess_img(img1, [800, 1333])
             img_pad = transforms.Normalize([0.40789654, 0.44719302, 0.47026115], [0.28863828, 0.27408164, 0.27809835],
@@ -114,7 +113,7 @@ if __name__ == "__main__":
                 break
         end_t = time.time()
         cost_t = 1000 * (end_t - start_t)
-        print("===>success processing img %d, cost time %.2f ms" % (cnt, cost_t))
+        print("===>success processing img %d, cost time %.2f ms" % (cnt + 1, cost_t))
 
         perturb.squeeze_(dim=0)
         perturb = perturb.cpu().numpy()

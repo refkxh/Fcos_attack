@@ -99,7 +99,7 @@ if __name__ == "__main__":
             img_pad.unsqueeze_(dim=0)
             img_pad = img_pad.cuda()
             scores, classes, boxes = model(img_pad)
-            cv2.imwrite('out_images/{}'.format(name), img_pad.numpy(), [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
+            cv2.imwrite('out_images/{}'.format(name), img_pad.cpu().numpy(), [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
             break
             loss = torch.sum(scores[0])
             if loss > 0:

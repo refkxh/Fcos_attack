@@ -38,7 +38,7 @@ def preprocess_img(image, input_ksize):
     pad_h = 32 - nh % 32
 
     image_paded = torch.zeros(size=[3, nh + pad_h, nw + pad_w], dtype=torch.float)
-    image_paded[:nh, :nw, :] = image_resized
+    image_paded[:, nh, :nw] = image_resized
     return image_paded, nh, nw
 
 

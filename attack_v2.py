@@ -38,6 +38,7 @@ def preprocess_img(image, input_ksize):
     pad_h = 32 - nh % 32
 
     image_paded = torch.zeros(size=[3, nh + pad_h, nw + pad_w], dtype=torch.float)
+    image_paded[:nh, :nw, :] = image_resized
     return image_paded, nh, nw
 
 
@@ -99,15 +100,6 @@ if __name__ == "__main__":
             img_pad.unsqueeze_(dim=0)
             img_pad = img_pad.cuda()
             scores, classes, boxes = model(img_pad)
-
-            img_pad.squeeze_(dim=0)
-            tmp = img_pad.cpu().numpy()
-            tmp = tmp.transpose(1, 2, 0)
-            tmp = tmp * 255
-            tmp = cv2.cvtColor(tmp, cv2.COLOR_RGB2BGR)
-            cv2.imwrite('out_images/{}'.format(name), tmp, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
-            exit()
-
             loss = torch.sum(scores[0])
             if loss > 0:
                 print('Iter {} loss:'.format(i), loss)

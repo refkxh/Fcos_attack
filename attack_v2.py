@@ -112,7 +112,7 @@ if __name__ == "__main__":
                 break
         end_t = time.time()
         cost_t = 1000 * (end_t - start_t)
-        print("===>success processing img %d, cost time %.2f ms" % cnt, cost_t)
+        print("===>success processing img %d, cost time %.2f ms" % (cnt, cost_t))
 
         perturb.squeeze_(dim=0)
         perturb = perturb.cpu().numpy()

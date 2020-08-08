@@ -86,6 +86,7 @@ if __name__ == "__main__":
         img_bgr = cv2.imread(root + name)
         mask = np.load('masks/' + name.split('.')[0] + '.npy')
         mask = np.expand_dims(mask, 0).repeat(3, axis=0).astype(np.uint8)
+        mask = torch.from_numpy(mask).cuda()
         img = cv2.cvtColor(img_bgr.copy(), cv2.COLOR_BGR2RGB)
         img1 = transforms.ToTensor()(img)
         img1.requires_grad = True

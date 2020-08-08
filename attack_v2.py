@@ -21,7 +21,7 @@ def preprocess_img(image, input_ksize):
     bboxes: [None,4]
     '''
     min_side, max_side = input_ksize
-    h, w, _ = image.shape
+    _, h, w = image.shape
 
     smallest_side = min(w, h)
     largest_side = max(w, h)
@@ -30,13 +30,14 @@ def preprocess_img(image, input_ksize):
         scale = max_side / largest_side
     nw, nh = int(scale * w), int(scale * h)
     upsampling = nn.UpsamplingNearest2d(size=(nh, nw))
+    image = image.unsqueeze(dim=0)
     image_resized = upsampling(image)
+    image_resized.squeeze_(dim=0)
 
     pad_w = 32 - nw % 32
     pad_h = 32 - nh % 32
 
-    image_paded = np.zeros(shape=[nh + pad_h, nw + pad_w, 3], dtype=np.float32)
-    image_paded[:nh, :nw, :] = image_resized
+    image_paded = torch.zeros(size=[3, nh + pad_h, nw + pad_w], dtype=torch.float)
     return image_paded, nh, nw
 
 
@@ -73,18 +74,14 @@ if __name__ == "__main__":
 
 
     model = FCOSDetector(mode="inference", config=Config)
-    # model=torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
-    # print("INFO===>success convert BN to SyncBN")
     model = torch.nn.DataParallel(model)
     model.load_state_dict(torch.load("./checkpoint/coco_37.2.pth", map_location=torch.device('cpu')))
-    # model=convertSyncBNtoBN(model)
-    # print("INFO===>success convert SyncBN to BN")
     model = model.cuda().eval()
     print("===>success loading model")
 
     root = r"../eval_code/select1000_new/"
     names = os.listdir(root)
-    for name in names:
+    for cnt, name in enumerate(names):
         img_bgr = cv2.imread(root + name)
         mask = np.load('masks/' + name.split('.')[0] + '.npy')
         mask = np.expand_dims(mask, 2).repeat(3, axis=2).astype(np.uint8)
@@ -109,13 +106,13 @@ if __name__ == "__main__":
                 loss.backward()
                 grad = img1.grad.data.sign()
                 img1.data = img1.data - grad * mask * attack_epsilon
-                img1.data = img1.data.clamp(0, 1)
+                img1.data.clamp_(0, 1)
                 perturb = perturb - grad * mask * attack_epsilon
             else:
                 break
         end_t = time.time()
         cost_t = 1000 * (end_t - start_t)
-        print("===>success processing img, cost time %.2f ms" % cost_t)
+        print("===>success processing img %d, cost time %.2f ms" % cnt, cost_t)
 
         perturb.squeeze_(dim=0)
         perturb = perturb.cpu().numpy()

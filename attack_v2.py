@@ -29,7 +29,7 @@ def preprocess_img(image, input_ksize):
     if largest_side * scale > max_side:
         scale = max_side / largest_side
     nw, nh = int(scale * w), int(scale * h)
-    upsampling = nn.UpsamplingNearest2d(size=(nh, nw))
+    upsampling = nn.UpsamplingBilinear2d(size=(nh, nw))
     image = image.unsqueeze(dim=0)
     image_resized = upsampling(image)
     image_resized.squeeze_(dim=0)

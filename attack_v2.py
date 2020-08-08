@@ -9,8 +9,8 @@ import time
 import matplotlib.pyplot as plt
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-attack_iters = 100
-attack_epsilon = 0.01
+attack_iters = 300
+attack_epsilon = 0.005
 
 
 def preprocess_img(image, input_ksize):
